@@ -1,0 +1,27 @@
+name: Security Testing
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize]
+  schedule:
+    - cron: '0 0 * * SAT'
+
+permissions:
+  contents: read
+  pull-requests: write # zizmor: ignore[excessive-permissions]
+  issues: write # zizmor: ignore[excessive-permissions]
+
+jobs:
+  sast:
+    uses: p2p-org/security-workflows/.github/workflows/sast.yaml@8c2c2ed8aae2fe463584d40285e21bd7395a06ab
+    secrets: inherit # zizmor: ignore[secrets-inherit]
+  sca:
+    uses: p2p-org/security-workflows/.github/workflows/sca.yaml@8c2c2ed8aae2fe463584d40285e21bd7395a06ab
+    secrets: inherit # zizmor: ignore[secrets-inherit]
+  security-quality-gate:
+    uses: p2p-org/security-workflows/.github/workflows/security-quality-gate.yaml@8c2c2ed8aae2fe463584d40285e21bd7395a06ab
+    secrets: inherit # zizmor: ignore[secrets-inherit]
+    needs: [sast, sca]
+    with:
+      block: true
